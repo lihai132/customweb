@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>地点关键字 + 驾车路线规划</title>
+    <style type="text/css">
+        html,
+        body,
+        #container {
+            width: 353px;
+            height: 400px;
+        }
+    </style>
+    <style type="text/css">
+        .amap-marker-label {
+            position: absolute;
+            z-index: 2;
+            border: 1px solid white;
+            background-color: white;
+            white-space: nowrap;
+            cursor: default;
+            padding: 3px;
+            font-size: 12px;
+            line-height: 14px;
+        }
+    </style>
+    <!-- <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css" /> -->
+    <script src="https://a.amap.com/jsapi_demos/static/demo-center/js/demoutils.js"></script>
+    <script type="text/javascript"
+        src="https://webapi.amap.com/maps?v=1.4.15&key=58cfa4f93f6fcb0406cc784da686683b&plugin=AMap.Driving"></script>
+    <script type="text/javascript" src="https://cache.amap.com/lbs/static/addToolbar.js"></script>
+    <script src="../js/jquery-3.3.1.js"></script>
+</head>
+
+<body>
+    <div id="container"></div>
+
+    <script type="text/javascript">
+        window.onload = function () {
+            var map = new AMap.Map('container', {
+                zoom: 12,
+                center: [116.4, 39.92],
+                resizeEnable: true
+            });
+
+            var viaIcon = new AMap.Icon({
+                // 图标尺寸
+                size: new AMap.Size(26, 26),
+                // 图标的取图地址
+                image: '.././images/che.png',
+                // 图标所用图片大小
+                imageSize: new AMap.Size(26, 26)
+            });
+
+            var startIcon = new AMap.Icon({
+                // 图标尺寸
+                size: new AMap.Size(19, 31),
+                // 图标的取图地址
+                image: 'https://webapi.amap.com/theme/v1.3/markers/n/start.png',
+                // 图标所用图片大小
+                imageSize: new AMap.Size(19, 31)
+            });
+
+            var endIcon = new AMap.Icon({
+                // 图标尺寸
+                size: new AMap.Size(19, 31),
+                // 图标的取图地址
+                image: 'https://webapi.amap.com/theme/v1.3/markers/n/end.png',
+                // 图标所用图片大小
+                imageSize: new AMap.Size(19, 31)
+            });
+
+
+            var drivingOption = {
+                policy: AMap.DrivingPolicy
+                    .LEAST_TIME, // 其它policy参数请参考 https://lbs.amap.com/api/javascript-api/reference/route-search#m_DrivingPolicy
+                ferry: 1, // 是否可以使用轮渡
+                map: map,
+                hideMarkers: true, // 设置隐藏路径规划的起始点图标
+                autoFitView: true,
+                showTraffic: true,
+                outlineColor: '#0091ea',
+            };
+
+            // 构造路线导航类
+            var driving = new AMap.Driving(drivingOption);
+            // 根据起终点经纬度规划驾车导航路线
+            driving.search(
+                new AMap.LngLat(113.746262, 23.046237),
+                new AMap.LngLat(117.120098, 36.6512), {
+                    waypoints: [new AMap.LngLat(114.305215, 30.592935)]
+                },
+                function (status, result) {
+                    if (status === 'complete') {
+                        console.log('绘制驾车路线完成');
+                    } else {
+                        console.log('获取驾车数据失败：' + result);
+                    }
+                }
+            );
+
+            // var newLine = new AMap.Polyline({
+            //     path: path2,
+            //     strokeWeight: 8,
+            //     strokeOpacity: 0.8,
+            //     strokeColor: '#0091ea',
+            //     showDir: true
+            // })
+            var capitals = [{
+                    center: [113.746262, 23.046237]
+                },
+                {
+                    center: [114.305215, 30.592935]
+                },
+                {
+                    center: [117.120098, 36.6512]
+                }
+            ];
+
+            var facilities = [];
+
+            var Startmarker = new AMap.Marker({
+                position: new AMap.LngLat(capitals[0].center[0], capitals[0].center[1]),
+                offset: new AMap.Pixel(-10, -25),
+                icon: startIcon
+            });
+
+            var Viamarker = new AMap.Marker({
+                position: new AMap.LngLat(capitals[1].center[0], capitals[1].center[1]),
+                offset: new AMap.Pixel(-15, -20),
+                icon: viaIcon
+            });
+
+            var Endmarker = new AMap.Marker({
+                position: new AMap.LngLat(capitals[2].center[0], capitals[2].center[1]),
+                offset: new AMap.Pixel(-10, -25),
+                icon: endIcon
+            });
+            facilities.push(Startmarker, Viamarker, Endmarker);
+
+            map.add(facilities);
+
+            // 设置label标签
+            // label默认蓝框白底左上角显示，样式className为：amap-marker-label
+            Viamarker.setLabel({
+                offset: new AMap.Pixel(5, 0), //设置文本标注偏移量
+                content: "<div class='info'>武汉</div>", //设置文本标注内容
+                direction: 'right' //设置文本标注方位
+            });
+        };
+    </script>
+</body>
+
+</html>

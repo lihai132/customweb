@@ -1,0 +1,615 @@
+<template>
+    <div class="header">
+        <!-- 折叠按钮 -->
+        <div class="collapse-btn">
+            <img src="../../assets/img/footer-logo.png" alt />
+        </div>
+        <div class="line"></div>
+        <div class="logo">{{title==3?"调度系统":"客服系统"}}</div>
+
+        <div class="header-right">
+            <div class="header-user-con">
+                <a
+                    href="javascript:;"
+                    class="goods"
+                    @click="goods"
+                    style="color:#fff;"
+                    v-if="show2"
+                >
+                    <div class="deliverGoods">
+                        <i class="el-icon-edit-outline"></i>
+                        发货
+                        <!-- <a href="javascript:;" @click="goods" v-if="show1">发货</a> -->
+                        <!-- <el-button type="primary" @click="goods" icon="el-icon-edit-outline">发货</el-button> -->
+                    </div>
+                </a>
+                <a
+                    href="javascript:;"
+                    class="goods"
+                    @click="daoru"
+                    style="color:#fff;"
+                    v-if="show2"
+                >
+                    <div class="deliverGoods">
+                        <i class="el-icon-upload"></i>
+                        批量导入
+                        <!-- <a href="javascript:;" @click="goods" v-if="show1">发货</a> -->
+                        <!-- <el-button type="primary" @click="goods" icon="el-icon-edit-outline">发货</el-button> -->
+                    </div>
+                </a>
+                <div class="line1" v-if="show2"></div>
+                <a href="javascript:;" class="goods" @click="news" style="color:#fff;">
+                    <div class="deliverGoods">
+                        <!-- <el-badge :value="3" class="item">
+                            <i class="el-icon-bell"></i>
+                        </el-badge>消息-->
+                        <el-tooltip
+                            effect="dark"
+                            :content="message?`有${message}条未读消息`:`消息中心`"
+                            placement="bottom"
+                        >
+                            <i class="el-icon-bell"></i>
+                        </el-tooltip>
+                        <span class="btn-bell-badge" v-if="message"></span>
+                        消息
+                    </div>
+                </a>
+                <a href="javascript:;" class="goods" @click="handleFullScreen" style="color:#fff;">
+                    <div class="deliverGoods">
+                        <i class="el-icon-rank"></i>
+                        全屏
+                        <!-- <a href="javascript:;" @click="goods" v-if="show1">发货</a> -->
+                        <!-- <el-button type="primary" @click="goods" icon="el-icon-edit-outline">发货</el-button> -->
+                    </div>
+                </a>
+                <div class="line1"></div>
+                <a href="javascript:;" class="goods" @click="change" style="color:#fff;">
+                    <div class="deliverGoods">
+                        <i class="el-icon-unlock"></i>
+                        修改密码
+                        <!-- <a href="javascript:;" @click="goods" v-if="show1">发货</a> -->
+                        <!-- <el-button type="primary" @click="goods" icon="el-icon-edit-outline">发货</el-button> -->
+                    </div>
+                </a>
+                <a href="javascript:;" class="goods" @click="open" style="color:#fff;">
+                    <div class="deliverGoods">
+                        <i class="el-icon-switch-button"></i>
+                        退出
+                        <!-- <a href="javascript:;" @click="goods" v-if="show1">发货</a> -->
+                        <!-- <el-button type="primary" @click="goods" icon="el-icon-edit-outline">发货</el-button> -->
+                    </div>
+                </a>
+
+                <!-- <div class="import">
+                    <router-link to="/upload-excel" v-if="show1">批量导入</router-link>
+                   
+                </div>-->
+
+                <!-- <div class="NewDriver">
+                    <a href="#">新增司机</a>
+                </div>-->
+                <!-- <div class="website">
+                    <a href="#">中象官网</a>
+                </div>-->
+
+                <!-- 全屏显示 -->
+                <!-- <div class="btn-fullscreen" @click="handleFullScreen">
+                    <el-tooltip effect="dark" :content="fullscreen?`取消全屏`:`全屏`" placement="bottom">
+                        <i class="el-icon-rank"></i>
+                    </el-tooltip>
+                </div>-->
+                <!-- 资金信息 -->
+
+                <!-- <div class="btn-bell">
+                    <el-tooltip
+                        effect="dark"
+                        :content="capital?`有${capital}条未读资金消息`:`资金消息中心`"
+                        placement="bottom"
+                    >
+                        <router-link to="/tabs">
+                            <i class="el-icon-lx-recharge"></i>
+                        </router-link>
+                    </el-tooltip>
+                    <span class="btn-bell-badge" v-if="message"></span>
+                </div>-->
+
+                <!-- 消息中心 -->
+                <!-- <div class="btn-bell">
+                    <el-tooltip
+                        effect="dark"
+                        :content="message?`有${message}条未读消息`:`消息中心`"
+                        placement="bottom"
+                    >
+                        <i class="el-icon-bell" @click="news"></i>
+                    </el-tooltip>
+                    <span class="btn-bell-badge" v-if="message"></span>
+                </div>
+                <div class="btn-fullscreen" @click="handleFullScreen">
+                    <el-tooltip effect="dark" :content="fullscreen?`取消全屏`:`全屏`" placement="bottom">
+                        <i class="el-icon-rank"></i>
+                    </el-tooltip>
+                </div>-->
+                <!-- 用户头像 -->
+                <div class="user-avator">
+                    <img :src="picUrl" />
+                </div>
+                <div class="user-name">{{loginData.name}}</div>
+                <!-- 用户名下拉菜单 -->
+            </div>
+        </div>
+        <changePassword ref="changePassword" @logout="logout"></changePassword>
+    </div>
+</template>
+<script>
+import bus from '../common/bus';
+import changePassword from '../popup/changePassword';
+import cryptoJS from '../../assets/js/encryptUtil.js';
+import CryptoJS from 'crypto-js';
+export default {
+    data() {
+        return {
+            show1: false,
+            show2: false,
+            picUrl: require('../../assets/img/dispatch-icon.png'),
+            title: '',
+            collapse: false,
+            fullscreen: false,
+            websocket: null,
+            message: 0,
+            capital: 3,
+            loginData: {},
+            key: '',
+            tid: '',
+            order: [],
+            Waybill: [],
+            page: '',
+            unread: [],
+            websock: null, //建立的连接
+            lockReconnect: false, //是否真正建立连接
+            timeout: 10 * 1000, //30秒一次心跳
+            timeoutObj: null, //心跳心跳倒计时
+            serverTimeoutObj: null, //心跳倒计时
+            timeoutnum: null, //断开 重连倒计时
+            lastRunTime: Date.now() //上次播放声音的时间
+        };
+    },
+    created() {
+        //页面刚进入时开启长连接
+        this.LogingType = this.$store.state.Login.LogingType;
+        this.key = this.$store.state.Login.key;
+        this.title = this.LogingType;
+        if (this.LogingType == 3) {
+            this.loginData = this.$store.state.Login.DispatchData;
+            this.show1 = false;
+            this.show2 = false;
+        }
+        if (this.LogingType == 4) {
+            this.loginData = this.$store.state.Login.CustomerData;
+            this.picUrl = require('../../assets/img/service-icon.png');
+            this.show1 = true;
+            this.show2 = true;
+        }
+        let tid = cryptoJS.encrypt(this.loginData.tid, this.key);
+        this.tid = encodeURIComponent(tid);
+        this.initWebSocket();
+        var url = window.location.href;
+        let arr = url.split('#/');
+        this.page = arr[1];
+    },
+    destroyed: function () {
+        //页面销毁时关闭长连接
+        this.websocketclose();
+    },
+    computed: {
+        username() {
+            let username = localStorage.getItem('ms_username');
+            return username ? username : this.name;
+        }
+    },
+
+    methods: {
+        //导入
+        daoru() {
+            this.$router.push('/upload-excel');
+        },
+
+        //登出
+        logout() {
+            localStorage.removeItem('ms_username');
+            this.setCookie('Token', '', -1);
+            this.$router.push('/login');
+        },
+        // 侧边栏折叠
+        collapseChage() {
+            this.collapse = !this.collapse;
+            bus.$emit('collapse', this.collapse);
+        },
+        // 全屏事件
+        handleFullScreen() {
+            let element = document.documentElement;
+            if (this.fullscreen) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitCancelFullScreen) {
+                    document.webkitCancelFullScreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            } else {
+                if (element.requestFullscreen) {
+                    element.requestFullscreen();
+                } else if (element.webkitRequestFullScreen) {
+                    element.webkitRequestFullScreen();
+                } else if (element.mozRequestFullScreen) {
+                    element.mozRequestFullScreen();
+                } else if (element.msRequestFullscreen) {
+                    // IE11
+                    element.msRequestFullscreen();
+                }
+            }
+            this.fullscreen = !this.fullscreen;
+        },
+        //消息
+        news() {
+            var url = window.location.href;
+            let arr = url.split('#');
+            if (arr[1] != '/tabs') {
+                this.$router.push('/tabs');
+            } else {
+                var time = Date.parse(new Date());
+                this.$store.commit('setTime', time);
+            }
+            this.message = 0;
+        },
+        refresh() {
+            this.$router.replace({
+                path: '/refresh',
+                query: {
+                    t: Date.now()
+                }
+            });
+        },
+        open() {
+            this.$confirm('是否退出登录', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            })
+                .then(() => {
+                    localStorage.removeItem('ms_username');
+                    this.$router.push('/login');
+                    this.setCookie('Token', '', -1);
+                })
+                .catch(() => {});
+        },
+        //发货
+        goods() {
+            this.$router.push('/Goods');
+        },
+        //修改密码
+        change() {
+            this.$refs.changePassword.receipt();
+        },
+        setCookie(key, val, iDay) {
+            //key：键名；val：键值；iDay：失效时间
+            // console.log(1);
+            var now = new Date();
+            now.setDate(now.getDate() + iDay);
+            document.cookie = key + '=' + val + ';expires=' + now.toUTCString() + ';path=/';
+            // console.log(document.cookie);
+        },
+
+        //WebSocket
+        initWebSocket() {
+            //建立连接
+            //初始化weosocket
+            // const wsuri = 'ws://192.168.0.230:9010/tradewebsocket?sid=' + this.loginData.si + '&tid=' + this.tid; //连接地址，可加参数
+            const wsuri = 'ws://trade.gdzxjy.net/tradewebsocket?sid=' + this.loginData.si + '&tid=' + this.tid; //连接地址，可加参数
+            // const wsuri = '';
+            //建立连接
+            this.websock = new WebSocket(wsuri);
+            //连接成功
+            this.websock.onopen = this.websocketonopen;
+            //连接错误
+            this.websock.onerror = this.websocketonerror;
+            //接收信息
+            this.websock.onmessage = this.websocketonmessage;
+            //连接关闭
+            // this.websock.onclose = this.websocketclose;
+        },
+        reconnect() {
+            //重新连接
+            var that = this;
+            if (that.lockReconnect) {
+                return;
+            }
+            that.lockReconnect = true;
+            //没连接上会一直重连，设置延迟避免请求过多
+            that.timeoutnum && clearTimeout(that.timeoutnum);
+            that.timeoutnum = setTimeout(function () {
+                //新连接
+                that.initWebSocket();
+                that.lockReconnect = false;
+            }, 50000);
+        },
+        reset() {
+            //重置心跳
+            var that = this;
+            //清除时间
+            clearTimeout(that.timeoutObj);
+            clearTimeout(that.serverTimeoutObj);
+            //重启心跳
+            that.start();
+        },
+        start() {
+            //开启心跳
+            var self = this;
+            self.timeoutObj && clearTimeout(self.timeoutObj);
+            self.serverTimeoutObj && clearTimeout(self.serverTimeoutObj);
+            self.timeoutObj = setTimeout(function () {
+                //这里发送一个心跳，后端收到后，返回一个心跳消息，
+                if (self.websock.readyState == 1) {
+                    //如果连接正常
+                    let hd = {
+                        pi: 10010,
+                        sq: 1
+                    };
+                    hd = JSON.stringify({ hd: hd });
+
+                    self.websock.send(hd);
+                } else {
+                    // 否则重连
+                    self.reconnect();
+                }
+                self.serverTimeoutObj = setTimeout(function () {
+                    //超时关闭
+                    self.websock.close();
+                }, self.timeout);
+            }, self.timeout);
+        },
+
+        websocketonopen() {
+            //开启心跳
+            console.log('链接成功');
+            this.start();
+        },
+
+        websocketonerror(e) {
+            //连接失败事件
+            //错误
+            console.log('WebSocket连接发生错误');
+            //错误提示
+            // s.error('Websocket error, Check you internet!');
+            //重连
+            this.reconnect();
+        },
+        websocketclose(e) {
+            //连接关闭事件
+            //关闭
+            console.log('connection closed ');
+            //提示关闭
+            // s.error('连接已关闭', 3);
+            //重连
+            this.reconnect();
+        },
+        websocketonmessage(event) {
+            //接收服务器推送的信息
+            //打印收到服务器的内容
+            let data = JSON.parse(event.data);
+            let bd = data.bd;
+            let hd = data.hd;
+            if (hd.pi == 10010) {
+            }
+            if (hd.pi == 50001) {
+                bd.type = '订单信息变更';
+                this.order.push(bd);
+                this.$store.commit('setList', this.order);
+                this.message = this.order.length;
+            }
+            if (hd.pi == 50002) {
+                bd.type = '运单信息变更';
+                this.order.push(bd);
+                this.$store.commit('setList', this.order);
+                this.message = this.order.length;
+            }
+            // console.log(this.order);
+            // this.order.map((item) => {
+            //     if (item.opt == 2) {
+            //     }
+            //     if (item.opt == 5) {
+            //     }
+            // });
+
+            //收到服务器信息，心跳重置
+            this.reset();
+        },
+        websocketsend(msg) {
+            //向服务器发送信息
+            //数据发送
+            this.websock.send(msg);
+        }
+    },
+    mounted() {
+        if (document.body.clientWidth < 1500) {
+            this.collapseChage();
+        }
+    },
+    components: {
+        changePassword
+    }
+};
+</script>
+<style lang="scss" scoped>
+.el-dropdown-menu__item--divided {
+    border-top: none !important;
+}
+
+.header {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    height: 70px;
+    font-size: 22px;
+    color: #fff;
+}
+.collapse-btn {
+    float: left;
+    padding: 0 30px;
+    cursor: pointer;
+    line-height: 70px;
+    // border-right: 1px solid #ccc;
+    // margin-right: 15px;
+    img {
+        margin-top: 13.5px;
+        width: 150px;
+        height: 40px;
+    }
+}
+.line {
+    position: absolute;
+    border-right: 5px solid #ffffff;
+    left: 210px;
+    top: 21.5px;
+    height: 40%;
+}
+.header .logo {
+    float: left;
+    width: 250px;
+    line-height: 70px;
+    font-size: 24px;
+    // font-weight: 550;
+    margin-left: 25px;
+}
+
+.header-right {
+    float: right;
+    padding-right: 50px;
+    .goods {
+        display: block;
+        padding: 5px;
+        box-sizing: border-box;
+        .deliverGoods:hover {
+            color: #409eff;
+        }
+    }
+
+    .line1 {
+        height: 30%;
+        // margin-top: 21.5px;
+        // border-right: 1px solid #ccc;
+        width: 1px;
+        margin-right: 10px;
+        background: linear-gradient(#808080, #fff);
+    }
+}
+.header-user-con {
+    display: flex;
+    height: 70px;
+    align-items: center;
+
+    .deliverGoods {
+        margin-right: 20px;
+        font-size: 16px;
+        position: relative;
+        a {
+            color: #fff;
+            // .btn-bell-badge {
+            //     position: absolute;
+            //     left: 0;
+            //     top: -2px;
+            //     width: 4px !important;
+            //     height: 4px !important;
+            //     border-radius: 2px !important;
+            //     background: #f56c6c;
+            //     color: #fff;
+            // }
+        }
+    }
+    .import {
+        // margin-right: 20px;
+        font-size: 16px;
+        a {
+            color: #fff;
+        }
+    }
+
+    .computer {
+        margin-right: 20px;
+        font-size: 16px;
+        a {
+            color: #fff;
+        }
+    }
+    .website {
+        margin-right: 20px;
+        font-size: 16px;
+        a {
+            color: #fff;
+        }
+    }
+    .locking {
+        border-bottom: 1px solid #ccc;
+    }
+    .NewDriver {
+        margin-right: 20px;
+        font-size: 16px;
+        a {
+            color: #fff;
+        }
+    }
+}
+.btn-fullscreen {
+    transform: rotate(45deg);
+    margin-right: 5px;
+    font-size: 24px;
+}
+.btn-bell,
+.btn-fullscreen {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    border-radius: 15px;
+    cursor: pointer;
+}
+.btn-bell-badge {
+    position: absolute;
+    left: 0;
+    top: 1px;
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    background: #f56c6c;
+    color: #fff;
+}
+.btn-bell .el-icon-bell {
+    color: #fff;
+}
+.btn-bell .el-icon-lx-recharge {
+    color: #fff;
+}
+
+.user-name {
+    margin-left: 10px;
+    font-size: 16px;
+}
+.user-avator {
+    // margin-left: 20px;
+}
+.user-avator img {
+    display: block;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+.el-dropdown-link {
+    color: #fff;
+    cursor: pointer;
+}
+.el-dropdown-menu__item {
+    text-align: center;
+    //  border-bottom: 1px solid #ccc;
+}
+</style>

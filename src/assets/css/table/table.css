@@ -1,0 +1,213 @@
+@charset "UTF-8";
+.el-table--small td {
+  padding: 6px 0;
+}
+
+.el-table__body tr.current-row > td {
+  background-color: #a4ccec;
+}
+
+.el-table--enable-row-hover .el-table__body tr:hover > td {
+  background-color: #a4ccec;
+}
+
+.BaseTable {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.BaseTable .container {
+  height: 92.5%;
+  display: flex;
+  flex-direction: column;
+}
+
+.BaseTable .container .hrad {
+  height: 114px;
+}
+
+.BaseTable .container .from-head {
+  height: 34px;
+}
+
+.BaseTable .container .el-table {
+  flex: 1;
+}
+
+.BaseTable .container .page {
+  height: 32px;
+  margin-top: 20px;
+  padding-bottom: 10px;
+}
+
+.head {
+  width: 870px;
+  padding-bottom: 30px;
+}
+
+.head .head-one {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.head .head-one .input1,
+.head .head-one .input2,
+.head .head-one .input3 {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+  width: 270px;
+}
+
+.head .head-one .input1 .title,
+.head .head-one .input2 .title,
+.head .head-one .input3 .title {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.head .head-two {
+  display: flex;
+  text-align: center;
+  justify-content: space-between;
+}
+
+.head .head-two .input4 {
+  width: 270px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.head .head-two .but {
+  margin-right: 40px;
+}
+
+.from-head {
+  width: 100%;
+  height: 34px;
+  background-color: #f5f7fa;
+  display: flex;
+  align-items: center;
+}
+
+.from-head .el-button {
+  margin-left: 10px;
+}
+
+.handle-box {
+  margin-bottom: 20px;
+}
+
+.handle-select {
+  width: 120px;
+}
+
+.handle-input {
+  width: 300px;
+  display: inline-block;
+}
+
+.table {
+  width: 100%;
+  font-size: 14px;
+}
+
+.red {
+  color: #ff0000;
+}
+
+.mr10 {
+  margin-right: 10px;
+}
+
+.table-td-thumb {
+  display: block;
+  margin: auto;
+  width: 40px;
+  height: 40px;
+}
+
+.page {
+  text-align: right;
+}
+
+.table {
+  width: 100%;
+  font-size: 14px;
+}
+
+a {
+  color: #333;
+}
+
+.right-menu {
+  position: fixed;
+  background: #fff;
+  border: solid 1px rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+  z-index: 999;
+  display: none;
+}
+
+.right-menu a {
+  width: 75px;
+  height: 28px;
+  line-height: 28px;
+  text-align: center;
+  display: block;
+  color: #1a1a1a;
+}
+
+.right-menu a:hover {
+  background: #eee;
+  color: #fff;
+}
+
+.right-menu {
+  border: 1px solid #eee;
+  box-shadow: 0 0.5em 1em 0 rgba(0, 0, 0, 0.1);
+  border-radius: 1px;
+}
+
+a {
+  text-decoration: none;
+}
+
+.right-menu a {
+  padding: 2px;
+}
+
+.right-menu a:hover {
+  background: #42b983;
+}
+
+path {
+  fill: black;
+}
+
+#menu {
+  overflow: hidden;
+  /*隐藏溢出的元素*/
+  box-shadow: 0 1px 1px #888, 1px 0 1px #ccc;
+  position: absolute;
+  display: none;
+  background: #ffffff;
+  z-index: 10;
+}
+
+.menu {
+  font-size: 14px;
+  height: 25px;
+  line-height: 25px;
+  cursor: pointer;
+  text-align: center;
+  border-bottom: 1px solid #ccc;
+  box-sizing: border-box;
+  padding: 0 8px;
+}
+
+.menu:hover {
+  background: #42b983;
+  color: #fff;
+}
